@@ -1,6 +1,12 @@
-# 98tang (sehuatang) 磁力/ED2K 推送到 115 网盘
+<img width="968" height="544" alt="image" src="https://github.com/user-attachments/assets/c95db93f-c6e3-48eb-8d8b-b00f892bbd46" /># 98tang (sehuatang) 磁力/ED2K 推送到 115 网盘
 
 一个油猴脚本，用于在 sehuatang.net/sehuatang.org 网站上自动检测复制的 magnet/ed2k 链接，一键推送到 115 网盘离线下载。
+![B1IYgLhgviZVBR5VVLAOrnx55n3SZsAm.webp](https://cdn.nodeimage.com/i/B1IYgLhgviZVBR5VVLAOrnx55n3SZsAm.webp)
+![4bEdfGi4myr8iprvMqKGcYrLcyEantgq.webp](https://cdn.nodeimage.com/i/4bEdfGi4myr8iprvMqKGcYrLcyEantgq.webp)
+![6x33mGC0tL0NWKqOuul7b2XxLuQk6rmD.webp](https://cdn.nodeimage.com/i/6x33mGC0tL0NWKqOuul7b2XxLuQk6rmD.webp)
+![pv8AJ9w4mFuh2pPQKs2s5LGWY8RI59YO.webp](https://cdn.nodeimage.com/i/pv8AJ9w4mFuh2pPQKs2s5LGWY8RI59YO.webp)
+![VcMp84uupRq2VWpSi2pMGy1ZAldIXewi.webp](https://cdn.nodeimage.com/i/VcMp84uupRq2VWpSi2pMGy1ZAldIXewi.webp)
+
 
 ## 功能特性
 
