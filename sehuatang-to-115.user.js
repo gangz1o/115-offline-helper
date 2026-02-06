@@ -3,11 +3,11 @@
 // @namespace    http://tampermonkey.net/
 // @version      1.1.2
 // @description  自动检测复制的 magnet/ed2k 链接，一键推送到 115 网盘离线下载
-// @author       You
+// @author       gangz1o
 // @match        *://*.sehuatang.net/*
 // @match        *://sehuatang.net/*
-// @match        *://*.sehuatang.org/*
-// @match        *://sehuatang.org/*
+// @match        *://*.javdb.com/*
+// @match        *://*javdb.com/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
 // @grant        GM_getValue
