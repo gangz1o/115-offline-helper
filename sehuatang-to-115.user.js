@@ -111,19 +111,26 @@
 		}
 
 		// 通用请求方法
-		request(url, method = 'GET', data = null) {
+		request(url, method = 'GET', data = null, customHeaders = {}) {
 			return new Promise((resolve, reject) => {
+				const headers = { ...this.headers, ...customHeaders }
+				// 移除值为 null 的 header
+				Object.keys(headers).forEach(key => {
+					if (headers[key] === null) delete headers[key]
+				})
+
 				const options = {
 					method: method,
 					url: url,
-					headers: this.headers,
-					withCredentials: !this._cookie, // 如果有自定义 cookie，就不需要 withCredentials
+					headers: headers,
+					withCredentials: !this._cookie,
 					onload: response => {
 						try {
 							const result = JSON.parse(response.responseText)
 							resolve(result)
 						} catch (e) {
-							reject(new Error('解析响应失败: ' + e.message))
+							const preview = response.responseText.substring(0, 150).replace(/[\r\n]/g, ' ')
+							reject(new Error(`解析响应失败: ${e.message} (Response: ${preview}...)`))
 						}
 					},
 					onerror: error => {
@@ -471,17 +478,43 @@
 		}
 
 		// 二维码登录（换取 Cookie）
-		async loginQRCode(uid) {
+		async loginQRCode(uid, app = 'web') {
 			const formData = {
 				account: uid,
-				app: 'web',
+				app: app,
 			}
+
+			// 针对不同端设置 User-Agent 和 Header
+			const customHeaders = {}
+			const userAgents = {
+				'android': 'Mozilla/5.0 (Linux; Android 13; SM-S9080 Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/108.0.5359.128 Mobile Safari/537.36 115Browser/30.4.0',
+				'ios': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 115Browser/30.4.0',
+				'ipad': 'Mozilla/5.0 (iPad; CPU OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 115Browser/30.4.0',
+				'tv': 'Mozilla/5.0 (Linux; Android 10; TV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36 115Browser/30.4.0',
+				'wechatmini': 'Mozilla/5.0 (Linux; Android 13; SM-S9080 Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/108.0.5359.128 Mobile Safari/537.36 XWEB/5023 MMWEBSDK/20230202 MMWEBID/8888 MicroMessenger/8.0.33.2320(0x28002151) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64 MiniProgramEnv/android',
+				'alipaymini': 'Mozilla/5.0 (Linux; Android 13; SM-S9080 Build/TP1A.220624.014; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/111.0.5563.116 Mobile Safari/537.36 Ariver/1.0.0 AliApp(AP/10.3.86.6000) Nebula AlipayDefined(nt:WIFI,ws:360|0|3.0) AliApp(AP/10.3.86.6000) AlipayClient/10.3.86.6000 Language/zh-Hans Region/CN',
+			}
+
+			if (app !== 'web') {
+				customHeaders['Origin'] = null // 移除 Origin
+				customHeaders['Referer'] = null // 移除 Referer
+				// 设置对应的 User-Agent
+				if (userAgents[app]) {
+					customHeaders['User-Agent'] = userAgents[app]
+				} else if (app === 'qandroid') {
+					customHeaders['User-Agent'] = userAgents['android'] // 复用 Android UA
+				} else if (app === 'qios') {
+					customHeaders['User-Agent'] = userAgents['ios'] // 复用 iOS UA
+				}
+			}
+
 			// 这里需要用 POST 请求 passportapi
 			// 注意：passportapi 返回的数据中包含 cookie
 			const result = await this.request(
-				'https://passportapi.115.com/app/1.0/web/1.0/login/qrcode/',
+				`https://passportapi.115.com/app/1.0/${app}/1.0/login/qrcode/`,
 				'POST',
 				formData,
+				customHeaders
 			)
 
 			if (result.state !== 1 || !result.data || !result.data.cookie) {
@@ -501,10 +534,10 @@
 				} else {
 					cookieStr = result.data.cookie
 				}
-				
+
 				this._cookie = cookieStr
 				setConfig(CONFIG_KEYS.COOKIE, cookieStr)
-				
+
 				// 尝试同步到浏览器（如果支持）
 				if (typeof GM_cookie !== 'undefined') {
 					const cookies = cookieStr.split('; ')
@@ -946,10 +979,52 @@
           text-align: center;
       }
       .push115-qrcode-tip {
-          font-size: 12px;
+          font-size: 13px;
           color: #86868b;
-          margin-top: 8px;
+          margin-top: 12px;
           text-align: center;
+          line-height: 1.4;
+      }
+
+      .push115-select-wrapper {
+          position: relative;
+          width: 100%;
+      }
+
+      .push115-select-wrapper::after {
+          content: '';
+          position: absolute;
+          right: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 10px;
+          height: 10px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+          background-size: contain;
+          background-repeat: no-repeat;
+          pointer-events: none;
+      }
+
+      .push115-select {
+          appearance: none;
+          -webkit-appearance: none;
+          width: 100%;
+          padding: 12px 14px;
+          padding-right: 34px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          border-radius: 12px;
+          font-size: 15px;
+          background: rgba(255, 255, 255, 0.8);
+          color: #1d1d1f;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: left;
+      }
+
+      .push115-select:focus {
+          outline: none;
+          border-color: #007AFF;
+          box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
       }
   `)
 
@@ -960,9 +1035,9 @@
 		panel.id = 'push115-panel'
 
 		panel.innerHTML = `
-          <div class="push115-min-icon" title="点击展开">📥</div>
+          <div class="push115-min-icon" title="点击展开"><h3 class="push115-modal-title"><img src="https://115.com/favicon.ico" style="width: 48px; height: 48px; border-radius: 4px;"></div>
           <div class="push115-header">
-              <span class="push115-header-title">115 离线下载</span>
+              <span class="push115-header-title">115离线下载助手</span>
               <div class="push115-header-btns">
                   <button class="push115-header-btn" id="push115-minimize" title="最小化">−</button>
               </div>
@@ -1007,14 +1082,14 @@
                   <div class="push115-hint">将视频移动到以文件名命名的文件夹中</div>
               </div>
 
-              <div class="push115-divider"></div>
-
-              <div class="push115-section">
-                  <button class="push115-btn push115-btn-primary" id="push115-check-login" style="width: 100%; margin-bottom: 8px;">
-                      检查 115 登录状态
+              <div class="push115-section" style="display: flex; gap: 8px;">
+                  <button class="push115-btn push115-btn-primary" id="push115-check-login" style="flex: 1; padding: 10px 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      检查状态
                   </button>
-                  <button class="push115-btn push115-btn-secondary" id="push115-login-btn" style="width: 100%;">
-                      扫码登录 115 (持久化)
+                  <button class="push115-btn push115-btn-secondary" id="push115-login-btn" style="flex: 1; padding: 10px 10px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                      <img src="https://115.com/favicon.ico" style="width: 16px; height: 16px; border-radius: 4px;">
+                      扫码登录
                   </button>
               </div>
           </div>
@@ -1116,7 +1191,7 @@
 				showStatus('error', '检查失败: ' + e.message)
 			} finally {
 				btn.disabled = false
-				btn.textContent = '检查 115 登录状态'
+				btn.textContent = '检查115登录状态'
 			}
 		})
 
@@ -1354,19 +1429,51 @@
 		const overlay = document.createElement('div')
 		overlay.className = 'push115-modal-overlay'
 		overlay.id = 'push115-modal-overlay'
-		
+
+		// 115 App 列表
+		const apps = [
+			{ name: '115 (网页端)', value: 'web' },
+			{ name: '115 (iOS端)', value: 'ios' },
+			{ name: '115 (Android端)', value: 'android' },
+			{ name: '115 (iPad端)', value: 'ipad' },
+			{ name: '115 (Android电视端)', value: 'tv' },
+			{ name: '115管理 (iOS端)', value: 'qios' },
+			{ name: '115管理 (Android端)', value: 'qandroid' },
+			{ name: '115生活 (微信小程序)', value: 'wechatmini' },
+			{ name: '115生活 (支付宝小程序)', value: 'alipaymini' },
+		]
+
 		overlay.innerHTML = `
-			<div class="push115-modal" style="width: 320px;">
+			<div class="push115-modal" style="width: 340px;">
 				<div class="push115-modal-header">
-					<h3 class="push115-modal-title">📱 115 扫码登录</h3>
+					<h3 class="push115-modal-title"><img src="https://115.com/favicon.ico" style="width: 24px; height: 24px; border-radius: 4px;"> 115 扫码登录</h3>
 				</div>
 				<div class="push115-modal-body">
-					<div class="push115-qrcode-container">
-						<div id="push115-qrcode-wrapper" style="display: flex; justify-content: center; align-items: center; height: 200px;">
-							<span class="push115-loading" style="border-width: 3px; width: 30px; height: 30px; border-top-color: #007AFF; border-color: rgba(0,122,255,0.2);"></span>
+					<!-- 选择区域 -->
+					<div id="push115-login-select-area">
+						<div class="push115-label" style="text-align: center; margin-bottom: 12px;">请选择登录应用类型</div>
+						<div class="push115-section">
+							<div class="push115-select-wrapper">
+								<select id="push115-app-select" class="push115-select">
+									${apps.map(app => `<option value="${app.value}">${app.name}</option>`).join('')}
+								</select>
+							</div>
 						</div>
-						<div class="push115-qrcode-status" id="push115-qrcode-status">正在获取二维码...</div>
-						<div class="push115-qrcode-tip">请使用 115 App 扫码</div>
+						<div class="push115-hint" style="text-align: center; margin-bottom: 20px;">不同端登录状态可能独立，建议选择长期使用的端</div>
+						<button class="push115-btn push115-btn-primary" id="push115-login-start" style="width: 100%;">
+							开始扫码
+						</button>
+					</div>
+
+					<!-- 二维码区域 (初始隐藏) -->
+					<div id="push115-qrcode-area" style="display: none;">
+						<div class="push115-qrcode-container">
+							<div id="push115-qrcode-wrapper" style="display: flex; justify-content: center; align-items: center; height: 200px;">
+								<span class="push115-loading" style="border-width: 3px; width: 30px; height: 30px; border-top-color: #007AFF; border-color: rgba(0,122,255,0.2);"></span>
+							</div>
+							<div class="push115-qrcode-status" id="push115-qrcode-status">正在获取二维码...</div>
+							<div class="push115-qrcode-tip" id="push115-qrcode-tip">请使用 115 App 扫码</div>
+						</div>
 					</div>
 				</div>
 				<div class="push115-modal-footer">
@@ -1374,66 +1481,114 @@
 				</div>
 			</div>
 		`
-		
+
 		document.body.appendChild(overlay)
-		
+
 		let stopPolling = false
-		
+		let selectedApp = 'web'
+
 		const cleanup = () => {
 			stopPolling = true
 			overlay.remove()
 			document.removeEventListener('keydown', escHandler)
 		}
-		
+
 		// 绑定关闭事件
 		document.getElementById('push115-modal-cancel').addEventListener('click', cleanup)
 		overlay.addEventListener('click', e => {
 			if (e.target === overlay) cleanup()
 		})
-		
+
 		const escHandler = e => {
 			if (e.key === 'Escape') cleanup()
 		}
 		document.addEventListener('keydown', escHandler)
-		
+
+		// 默认选中 Android (通常更持久)
+		const appSelect = document.getElementById('push115-app-select')
+		appSelect.value = 'android'
+
+		// 应用描述映射
+		const appDescriptions = {
+			'web': '请使用 115 App 扫码',
+			'ios': '请使用 115 App (iOS端) 扫码',
+			'android': '请使用 115 App (Android端) 扫码',
+			'ipad': '请使用 115 App (iPad端) 扫码',
+			'tv': '请使用 115 App (Android电视端) 扫码',
+			'qios': '请使用 115管理 App (iOS端) 扫码',
+			'qandroid': '请使用 115管理 App (Android端) 扫码',
+			'wechatmini': '请使用 微信 扫码 (115生活小程序)',
+			'alipaymini': '请使用 支付宝 扫码 (115生活小程序)',
+		}
+
+		// 更新提示文本
+		const updateTip = () => {
+			const tipEl = document.getElementById('push115-qrcode-tip')
+			const val = appSelect.value
+			if (tipEl && appDescriptions[val]) {
+				tipEl.textContent = appDescriptions[val]
+			}
+		}
+
+		// 监听选择变化
+		appSelect.addEventListener('change', updateTip)
+
+		// 初始化提示
+		updateTip()
+
+		// 点击开始按钮
+		document.getElementById('push115-login-start').addEventListener('click', () => {
+			selectedApp = document.getElementById('push115-app-select').value
+			document.getElementById('push115-login-select-area').style.display = 'none'
+			document.getElementById('push115-qrcode-area').style.display = 'block'
+			startLoginFlow()
+		})
+
 		// 启动登录流程
-		;(async () => {
+		const startLoginFlow = async () => {
 			try {
 				// 1. 获取 Token
 				const tokenData = await api.getQRCodeToken()
 				const { uid, time, sign, qrcode } = tokenData
-				
+
 				// 2. 显示二维码
 				const wrapper = document.getElementById('push115-qrcode-wrapper')
 				if (wrapper) {
 					wrapper.innerHTML = `<img src="https://qrcodeapi.115.com/api/1.0/web/1.0/qrcode?uid=${uid}&_=${Date.now()}" class="push115-qrcode-img">`
 				}
-				
+
 				const statusEl = document.getElementById('push115-qrcode-status')
 				if (statusEl) statusEl.textContent = '请扫描二维码'
-				
+
 				// 3. 轮询状态
 				while (!stopPolling) {
 					try {
 						const statusData = await api.getQRCodeStatus(uid, time, sign)
 						const status = statusData.status // 0:等待, 1:已扫码, 2:已登录, -1:过期, -2:取消
-						
+
 						if (status === 0) {
 							if (statusEl) statusEl.textContent = '请扫描二维码'
 						} else if (status === 1) {
 							if (statusEl) statusEl.textContent = '已扫码，请在手机上确认'
 						} else if (status === 2) {
 							if (statusEl) statusEl.textContent = '登录成功！正在获取 Cookie...'
-							
-							// 4. 换取 Cookie
-							await api.loginQRCode(uid)
-							if (statusEl) statusEl.textContent = '✅ 登录完成'
-							
-							// 短暂延迟后关闭
-							setTimeout(() => {
-								cleanup()
-								showStatus('success', '✅ 115 登录成功，Cookie 已保存')
-							}, 1000)
+
+							// 4. 换取 Cookie (带 App 参数)
+							try {
+								await api.loginQRCode(uid, selectedApp)
+								if (statusEl) statusEl.textContent = '✅ 登录完成'
+
+								// 短暂延迟后关闭
+								setTimeout(() => {
+									cleanup()
+									showStatus('success', `✅ 115 登录成功 (${selectedApp})，Cookie 已保存`)
+								}, 1000)
+							} catch (loginErr) {
+								console.error('Login Error:', loginErr)
+								if (statusEl) statusEl.textContent = '❌ 获取Cookie失败: ' + loginErr.message
+								// Stop polling on critical failure to avoid infinite loop
+								stopPolling = true
+							}
 							break
 						} else if (status === -1) {
 							if (statusEl) statusEl.textContent = '二维码已过期，请重试'
@@ -1442,7 +1597,7 @@
 							if (statusEl) statusEl.textContent = '已取消登录'
 							break
 						}
-						
+
 						await new Promise(r => setTimeout(r, 1500))
 					} catch (e) {
 						console.error('轮询状态错误:', e)
@@ -1455,7 +1610,7 @@
 				const statusEl = document.getElementById('push115-qrcode-status')
 				if (statusEl) statusEl.textContent = '❌ 发生错误: ' + e.message
 			}
-		})()
+		}
 	}
 
 	// ========== 监控任务并处理 ==========
