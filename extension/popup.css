@@ -281,6 +281,10 @@ body {
 }
 
 .push115-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 10px 16px;
   border: none;
   border-radius: 10px;
@@ -444,4 +448,136 @@ body.dark-theme .push115-header-btn {
 body.dark-theme .push115-header-btn:hover {
   background: rgba(255,255,255,0.1);
   color: #fff;
+}
+
+/* Modal Overlay */
+.push115-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.push115-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 320px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.25s ease;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.push115-modal-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.push115-modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.push115-modal-body {
+  padding: 16px;
+}
+
+.push115-modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* QR Code */
+.push115-qrcode-container {
+  text-align: center;
+}
+
+.push115-qrcode-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.push115-qrcode-wrapper img {
+  width: 180px;
+  height: 180px;
+  border-radius: 8px;
+}
+
+.push115-qrcode-status {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1f;
+  margin-top: 10px;
+}
+
+.push115-qrcode-tip {
+  font-size: 11px;
+  color: #86868b;
+  margin-top: 4px;
+}
+
+/* Loading Spinner */
+.push115-loading {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(0, 122, 255, 0.2);
+  border-top-color: #007AFF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dark Theme - Modal */
+body.dark-theme .push115-modal {
+  background: #2a2a2a;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+body.dark-theme .push115-modal-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .push115-modal-title {
+  color: #fff;
+}
+
+body.dark-theme .push115-modal-footer {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .push115-qrcode-status {
+  color: #e0e0e0;
+}
+
+body.dark-theme .push115-qrcode-tip {
+  color: #888;
 }

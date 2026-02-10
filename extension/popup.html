@@ -68,10 +68,12 @@
 
         <div class="push115-section push115-btn-group">
           <button class="push115-btn push115-btn-primary push115-btn-full" id="push115-check-login">
-            检查 115 登录状态
+            <img src="icons/check.png" width="16" height="16">
+            检查状态
           </button>
           <button class="push115-btn push115-btn-secondary push115-btn-full" id="push115-login-btn">
-            <img src="https://115.com/favicon.ico" style="width: 16px; height: 16px; border-radius: 4px;">扫码登录 115
+            <img src="icons/115.png" width="16" height="16">
+            扫码登录
           </button>
         </div>
       </div>
@@ -104,6 +106,54 @@
           <textarea id="push115-domains-input" class="push115-textarea" placeholder="不填则在所有页面显示面板"></textarea>
           <div class="push115-hint">支持域名匹配，不包含协议 (http/https)</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Modal (hidden by default) -->
+  <div class="push115-modal-overlay" id="push115-login-modal" style="display: none;">
+    <div class="push115-modal">
+      <div class="push115-modal-header">
+        <h3 class="push115-modal-title">
+          <img src="icons/115.png" width="24" height="24" style="border-radius: 4px;"> 115 扫码登录
+        </h3>
+      </div>
+      <div class="push115-modal-body">
+        <!-- Select Area -->
+        <div id="push115-login-select-area">
+          <div class="push115-label" style="text-align: center; margin-bottom: 12px;">请选择登录应用类型</div>
+          <div class="push115-section">
+            <div class="push115-select-wrapper">
+              <select id="push115-app-select" class="push115-select">
+                <option value="web">115 (网页端)</option>
+                <option value="ios">115 (iOS端)</option>
+                <option value="android" selected>115 (Android端)</option>
+                <option value="ipad">115 (iPad端)</option>
+                <option value="tv">115 (Android电视端)</option>
+                <option value="qios">115管理 (iOS端)</option>
+                <option value="qandroid">115管理 (Android端)</option>
+                <option value="wechatmini">115生活 (微信小程序)</option>
+                <option value="alipaymini">115生活 (支付宝小程序)</option>
+              </select>
+            </div>
+          </div>
+          <div class="push115-hint" style="text-align: center; margin-bottom: 20px;">不同端登录状态可能独立，建议选择长期使用的端</div>
+          <button class="push115-btn push115-btn-primary push115-btn-full" id="push115-login-start">开始扫码</button>
+        </div>
+
+        <!-- QR Code Area (hidden initially) -->
+        <div id="push115-qrcode-area" style="display: none;">
+          <div class="push115-qrcode-container">
+            <div id="push115-qrcode-wrapper" class="push115-qrcode-wrapper">
+              <span class="push115-loading"></span>
+            </div>
+            <div class="push115-qrcode-status" id="push115-qrcode-status">正在获取二维码...</div>
+            <div class="push115-qrcode-tip" id="push115-qrcode-tip">请使用 115 App 扫码</div>
+          </div>
+        </div>
+      </div>
+      <div class="push115-modal-footer">
+        <button class="push115-btn push115-btn-secondary" id="push115-login-cancel">取消</button>
       </div>
     </div>
   </div>

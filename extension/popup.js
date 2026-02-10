@@ -36,8 +36,8 @@ const I18N_STRINGS = {
     delete_size_label_post: 'MB的文件',
     auto_organize_label: '自动整理视频文件夹',
     organize_hint: '自动将散乱的视频文件整理到同名文件夹中',
-    check_login_text: '检查115登录状态',
-    login_btn: '扫码登录115',
+    check_login_text: '检查状态',
+    login_btn: '扫码登录',
     login_success: '115账号已登录',
     login_fail: '未登录，请先登录115',
     processing: '处理中...',
@@ -62,8 +62,8 @@ const I18N_STRINGS = {
     delete_size_label_post: 'MB',
     auto_organize_label: 'Auto organize video folders',
     organize_hint: 'Automatically organize scattered video files into folders',
-    check_login_text: 'Check 115 Status',
-    login_btn: 'Scan QR Login',
+    check_login_text: 'Check Status',
+    login_btn: 'QR Login',
     login_success: '115 is logged in',
     login_fail: 'Not logged in, please login first',
     processing: 'Processing...',
@@ -137,8 +137,8 @@ function applyLocale() {
   document.getElementById('label-delete-post').textContent = t('delete_size_label_post');
   document.getElementById('label-auto-organize').textContent = t('auto_organize_label');
   document.getElementById('hint-organize').textContent = t('organize_hint');
-  document.getElementById('push115-check-login').textContent = t('check_login_text');
-  document.getElementById('push115-login-btn').textContent = t('login_btn');
+  document.getElementById('push115-check-login').innerHTML = '<img src="icons/check.png" width="16" height="16">' + t('check_login_text');
+  document.getElementById('push115-login-btn').innerHTML = '<img src="icons/115.png" width="16" height="16">' + t('login_btn');
 }
 
 async function init() {
@@ -172,6 +172,7 @@ async function init() {
 
   // Bind events
   bindEvents();
+  bindLoginModalEvents();
 }
 
 function bindEvents() {
@@ -234,7 +235,7 @@ function bindEvents() {
   document.getElementById('push115-check-login').addEventListener('click', async () => {
     const btn = document.getElementById('push115-check-login');
     btn.disabled = true;
-    btn.textContent = t('processing');
+    btn.innerHTML = '<img src="icons/check.png" width="16" height="16">' + t('processing');
     try {
       const response = await sendMessage('API_REQUEST', {
         url: 'https://webapi.115.com/files?cid=0&limit=1',
@@ -246,13 +247,171 @@ function bindEvents() {
       showStatus('error', t('login_fail'));
     }
     btn.disabled = false;
-    btn.textContent = t('check_login_text');
+    btn.innerHTML = '<img src="icons/check.png" width="16" height="16">' + t('check_login_text');
   });
 
-  // Login Button
+  // Login Button - open modal
   document.getElementById('push115-login-btn').addEventListener('click', () => {
-    chrome.tabs.create({ url: 'https://115.com/?tab=login' });
+    showLoginModal();
   });
+}
+
+// ========== QR Login Modal ==========
+
+const APP_DESCRIPTIONS = {
+  'web': '请使用 115 App 扫码',
+  'ios': '请使用 115 App (iOS端) 扫码',
+  'android': '请使用 115 App (Android端) 扫码',
+  'ipad': '请使用 115 App (iPad端) 扫码',
+  'tv': '请使用 115 App (Android电视端) 扫码',
+  'qios': '请使用 115管理 App (iOS端) 扫码',
+  'qandroid': '请使用 115管理 App (Android端) 扫码',
+  'wechatmini': '请使用 微信 扫码 (115生活小程序)',
+  'alipaymini': '请使用 支付宝 扫码 (115生活小程序)',
+};
+
+let stopPolling = false;
+
+function showLoginModal() {
+  const modal = document.getElementById('push115-login-modal');
+  modal.style.display = 'flex';
+  stopPolling = false;
+
+  // Reset to select area
+  document.getElementById('push115-login-select-area').style.display = 'block';
+  document.getElementById('push115-qrcode-area').style.display = 'none';
+  document.getElementById('push115-qrcode-wrapper').innerHTML = '<span class="push115-loading"></span>';
+  document.getElementById('push115-qrcode-status').textContent = '正在获取二维码...';
+  updateQRTip();
+}
+
+function hideLoginModal() {
+  stopPolling = true;
+  document.getElementById('push115-login-modal').style.display = 'none';
+}
+
+function updateQRTip() {
+  const val = document.getElementById('push115-app-select').value;
+  const tipEl = document.getElementById('push115-qrcode-tip');
+  if (tipEl && APP_DESCRIPTIONS[val]) {
+    tipEl.textContent = APP_DESCRIPTIONS[val];
+  }
+}
+
+// Bind modal events (called once during init)
+function bindLoginModalEvents() {
+  // Cancel button
+  document.getElementById('push115-login-cancel').addEventListener('click', hideLoginModal);
+
+  // Click overlay to close
+  document.getElementById('push115-login-modal').addEventListener('click', e => {
+    if (e.target.id === 'push115-login-modal') hideLoginModal();
+  });
+
+  // ESC to close
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') hideLoginModal();
+  });
+
+  // App select change -> update tip
+  document.getElementById('push115-app-select').addEventListener('change', updateQRTip);
+
+  // Start scan button
+  document.getElementById('push115-login-start').addEventListener('click', () => {
+    const selectedApp = document.getElementById('push115-app-select').value;
+    document.getElementById('push115-login-select-area').style.display = 'none';
+    document.getElementById('push115-qrcode-area').style.display = 'block';
+    startLoginFlow(selectedApp);
+  });
+}
+
+async function startLoginFlow(selectedApp) {
+  try {
+    // 1. Get QR Token
+    const tokenResp = await sendMessage('API_REQUEST', {
+      url: 'https://qrcodeapi.115.com/api/1.0/web/1.0/token/',
+      method: 'GET'
+    });
+    const tokenResult = tokenResp.data;
+    if (!tokenResult || tokenResult.state !== 1 || !tokenResult.data || !tokenResult.data.uid) {
+      throw new Error('获取二维码 Token 失败');
+    }
+
+    const { uid, time, sign } = tokenResult.data;
+
+    // 2. Show QR Code
+    const wrapper = document.getElementById('push115-qrcode-wrapper');
+    if (wrapper) {
+      wrapper.innerHTML = `<img src="https://qrcodeapi.115.com/api/1.0/web/1.0/qrcode?uid=${uid}&_=${Date.now()}">`;
+    }
+
+    const statusEl = document.getElementById('push115-qrcode-status');
+    if (statusEl) statusEl.textContent = '请扫描二维码';
+
+    // 3. Poll status
+    while (!stopPolling) {
+      try {
+        const statusResp = await sendMessage('API_REQUEST', {
+          url: `https://qrcodeapi.115.com/get/status/?uid=${uid}&time=${time}&sign=${sign}&_=${Date.now()}`,
+          method: 'GET'
+        });
+        const statusResult = statusResp.data;
+        if (!statusResult || statusResult.state !== 1 || !statusResult.data) {
+          throw new Error('获取二维码状态失败');
+        }
+
+        const status = statusResult.data.status;
+
+        if (status === 0) {
+          if (statusEl) statusEl.textContent = '请扫描二维码';
+        } else if (status === 1) {
+          if (statusEl) statusEl.textContent = '已扫码，请在手机上确认';
+        } else if (status === 2) {
+          if (statusEl) statusEl.textContent = '登录成功！正在获取 Cookie...';
+
+          // 4. Exchange for cookie
+          try {
+            const loginResp = await sendMessage('API_REQUEST', {
+              url: `https://passportapi.115.com/app/1.0/${selectedApp}/1.0/login/qrcode/`,
+              method: 'POST',
+              data: { account: uid, app: selectedApp }
+            });
+
+            const loginResult = loginResp.data;
+            if (!loginResult || loginResult.state !== 1) {
+              throw new Error(loginResult?.error || '登录失败');
+            }
+
+            if (statusEl) statusEl.textContent = '✅ 登录完成';
+            setTimeout(() => {
+              hideLoginModal();
+              showStatus('success', `✅ 115 登录成功 (${selectedApp})`);
+            }, 1000);
+          } catch (loginErr) {
+            console.error('Login Error:', loginErr);
+            if (statusEl) statusEl.textContent = '❌ 获取Cookie失败: ' + loginErr.message;
+            stopPolling = true;
+          }
+          break;
+        } else if (status === -1) {
+          if (statusEl) statusEl.textContent = '二维码已过期，请重试';
+          break;
+        } else if (status === -2) {
+          if (statusEl) statusEl.textContent = '已取消登录';
+          break;
+        }
+
+        await new Promise(r => setTimeout(r, 1500));
+      } catch (e) {
+        console.error('轮询状态错误:', e);
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+  } catch (e) {
+    console.error('登录流程错误:', e);
+    const statusEl = document.getElementById('push115-qrcode-status');
+    if (statusEl) statusEl.textContent = '❌ 发生错误: ' + e.message;
+  }
 }
 
 // Start
