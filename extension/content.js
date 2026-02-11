@@ -42,7 +42,7 @@ const I18N_STRINGS = {
 		cleaning: '🗑️ 正在清理小文件...',
 		clean_success: ' 清理完成: ',
 		clean_fail: ' 清理失败: ',
-		panel_title: '115离线下载助手',
+		panel_title: '115离线助手',
 	},
 	'en-US': {
 		modal_title: 'Magnet/ED2K Link Detected',

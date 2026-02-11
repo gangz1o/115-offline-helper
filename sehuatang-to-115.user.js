@@ -1053,7 +1053,7 @@
 		panel.innerHTML = `
           <div class="push115-min-icon" title="点击展开"><h3 class="push115-modal-title"><img src="https://115.com/favicon.ico" style="width: 48px; height: 48px; border-radius: 4px;"></div>
           <div class="push115-header">
-              <span class="push115-header-title">115离线下载助手</span>
+              <span class="push115-header-title">115离线助手</span>
               <div class="push115-header-btns">
                   <a class="push115-header-btn" href="https://github.com/gangz1o/sehuatang-to-115" target="_blank" title="访问 Github 项目主页" style="text-decoration: none;">
                       <svg height="16" width="16" viewBox="0 0 16 16" version="1.1" fill="currentColor">

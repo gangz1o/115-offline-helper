@@ -47,7 +47,14 @@ async function getPersistedCookie() {
   return data[STORAGE_KEYS.COOKIE] || '';
 }
 
-async function syncCookieStringToJar(cookieString) {
+async function has115AuthCookies() {
+  const cookies = await chrome.cookies.getAll({ domain: '.115.com' });
+  const names = new Set(cookies.map(c => c.name));
+  return names.has('UID') && names.has('CID') && names.has('SEID');
+}
+
+async function syncCookieStringToJar(cookieString, options = {}) {
+  const { overwrite = true } = options;
   const expiresAt = Math.floor(Date.now() / 1000) + 180 * 24 * 60 * 60;
   const pairs = cookieString
     .split(';')
@@ -62,6 +69,15 @@ async function syncCookieStringToJar(cookieString) {
     if (!name || !value) continue;
 
     try {
+      if (!overwrite) {
+        const existing = await chrome.cookies.get({
+          url: 'https://115.com/',
+          name,
+        });
+        if (existing && existing.value) {
+          continue;
+        }
+      }
       await chrome.cookies.set({
         url: 'https://115.com/',
         name,
@@ -76,6 +92,15 @@ async function syncCookieStringToJar(cookieString) {
       console.warn('Set cookie failed:', name, e?.message || e);
     }
   }
+}
+
+async function restorePersistedCookieIfMissing() {
+  const hasAuth = await has115AuthCookies();
+  if (hasAuth) return false;
+  const saved = await getPersistedCookie();
+  if (!saved) return false;
+  await syncCookieStringToJar(saved, { overwrite: false });
+  return true;
 }
 
 async function persistCookieToStorageAndJar(rawCookie) {
@@ -95,13 +120,8 @@ async function handleApiRequest(request, sendResponse) {
 
     const requestHeaders = { ...headers };
     if (is115Host(url)) {
-      const savedCookie = await getPersistedCookie();
-      if (savedCookie) {
-        await syncCookieStringToJar(savedCookie);
-        if (!requestHeaders.Cookie) {
-          requestHeaders.Cookie = savedCookie;
-        }
-      }
+      // 只在认证 cookie 缺失时恢复，避免覆盖在线会话导致掉登录
+      await restorePersistedCookieIfMissing();
     }
 
     // Convert data to URLSearchParams for POST
@@ -171,7 +191,7 @@ async function handleGetCookie(request, sendResponse) {
     if (!cookieString) {
       cookieString = await getPersistedCookie();
       if (cookieString) {
-        await syncCookieStringToJar(cookieString);
+        await syncCookieStringToJar(cookieString, { overwrite: false });
       }
     }
     sendResponse({ success: true, cookie: cookieString });

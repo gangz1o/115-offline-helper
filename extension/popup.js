@@ -25,7 +25,7 @@ const DEFAULT_CONFIG = {
 
 const I18N_STRINGS = {
 	'zh-CN': {
-		panel_title: '115离线下载助手',
+		panel_title: '115离线助手',
 		tab_home: '主页',
 		tab_settings: '设置',
 		save_path_label: '默认保存目录:',
@@ -255,14 +255,14 @@ function bindEvents() {
 		const btn = document.getElementById('push115-check-login')
 		btn.disabled = true
 		btn.innerHTML = '<img src="icons/check.png" width="16" height="16">' + t('processing')
-			try {
-				const response = await sendMessage('API_REQUEST', {
-					url: 'https://my.115.com/?ct=guide&ac=status',
-					method: 'GET',
-				})
-				const isLogin = response.data && response.data.state === true
-				showStatus(isLogin ? 'success' : 'error', isLogin ? t('login_success') : t('login_fail'))
-			} catch (e) {
+		try {
+			const response = await sendMessage('API_REQUEST', {
+				url: 'https://my.115.com/?ct=guide&ac=status',
+				method: 'GET',
+			})
+			const isLogin = response.data && response.data.state === true
+			showStatus(isLogin ? 'success' : 'error', isLogin ? t('login_success') : t('login_fail'))
+		} catch (e) {
 			showStatus('error', t('login_fail'))
 		}
 		btn.disabled = false
