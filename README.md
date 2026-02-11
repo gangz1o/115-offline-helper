@@ -1,6 +1,6 @@
-# 98tang (sehuatang) 磁力/ED2K 推送到 115 网盘
+# 磁力/ED2K 一键推送到 115 网盘
 
-一个油猴脚本，用于在 sehuatang.net/sehuatang.org 网站上自动检测复制的 magnet/ed2k 链接，一键推送到 115 网盘离线下载。
+一个油猴脚本，用于在部分网站（98tang/javdb/bt电影天堂等）上自动检测复制的 magnet/ed2k 链接，一键推送到 115 网盘离线下载。
 
 
 ## 功能特性
