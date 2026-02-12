@@ -8,6 +8,7 @@ const CONFIG_KEYS = {
 	AUTO_DELETE_SMALL: 'push115_auto_delete_small',
 	DELETE_SIZE_THRESHOLD: 'push115_delete_size_threshold',
 	AUTO_ORGANIZE: 'push115_auto_organize',
+	AUTO_DETECT: 'push115_auto_detect',
 	I18N_LOCALE: 'push115_i18n_locale',
 	THEME: 'push115_theme',
 }
@@ -19,6 +20,7 @@ const DEFAULT_CONFIG = {
 	[CONFIG_KEYS.AUTO_DELETE_SMALL]: false,
 	[CONFIG_KEYS.DELETE_SIZE_THRESHOLD]: 100,
 	[CONFIG_KEYS.AUTO_ORGANIZE]: false,
+	[CONFIG_KEYS.AUTO_DETECT]: false,
 	[CONFIG_KEYS.I18N_LOCALE]: 'zh-CN',
 	[CONFIG_KEYS.THEME]: 'auto',
 }
@@ -49,6 +51,8 @@ const I18N_STRINGS = {
 		settings_save_dirs_label: '115 离线目录 (一行一个)',
 		save_dirs_placeholder: '例如：98预处理:3280039214730565554',
 		save_dirs_hint: '格式：目录名:CID，例如：电影:123456789',
+		auto_detect_label: '自动识别链接',
+		auto_detect_hint: '在所有网页上自动检测 magnet/ed2k 链接（需要额外权限）',
 	},
 	'en-US': {
 		panel_title: '115 Offline Helper',
@@ -75,6 +79,8 @@ const I18N_STRINGS = {
 		settings_save_dirs_label: '115 Offline Directories (One per line)',
 		save_dirs_placeholder: 'e.g., Preprocess:3280039214730565554',
 		save_dirs_hint: 'Format: Name:CID, e.g., Movies:123456789',
+		auto_detect_label: 'Auto detect links',
+		auto_detect_hint: 'Automatically detect magnet/ed2k links on all web pages (requires extra permission)',
 	},
 }
 
@@ -108,12 +114,27 @@ function setConfig(key, value) {
 	configCache[key] = value
 	chrome.storage.local.set({ [key]: value })
 }
+function setBtnContent(btnId, iconSrc, text) {
+	const btn = document.getElementById(btnId)
+	if (!btn) return
+	btn.textContent = ''
+	const img = document.createElement('img')
+	img.src = iconSrc
+	img.width = 16
+	img.height = 16
+	btn.appendChild(img)
+	btn.appendChild(document.createTextNode(' ' + text))
+}
 
 function showStatus(type, msg, timeout = 3000) {
 	const area = document.getElementById('push115-status-area')
-	area.innerHTML = `<div class="push115-status ${type}">${msg}</div>`
+	area.textContent = ''
+	const div = document.createElement('div')
+	div.className = `push115-status ${type}`
+	div.textContent = msg
+	area.appendChild(div)
 	if (timeout) {
-		setTimeout(() => (area.innerHTML = ''), timeout)
+		setTimeout(() => (area.textContent = ''), timeout)
 	}
 }
 
@@ -139,10 +160,10 @@ function applyLocale() {
 	document.getElementById('label-delete-post').textContent = t('delete_size_label_post')
 	document.getElementById('label-auto-organize').textContent = t('auto_organize_label')
 	document.getElementById('hint-organize').textContent = t('organize_hint')
-	document.getElementById('push115-check-login').innerHTML =
-		'<img src="icons/check.png" width="16" height="16">' + t('check_login_text')
-	document.getElementById('push115-login-btn').innerHTML =
-		'<img src="icons/115.png" width="16" height="16">' + t('login_btn')
+	document.getElementById('label-auto-detect').textContent = t('auto_detect_label')
+	document.getElementById('hint-auto-detect').textContent = t('auto_detect_hint')
+	setBtnContent('push115-check-login', 'icons/check.png', t('check_login_text'))
+	setBtnContent('push115-login-btn', 'icons/115.png', t('login_btn'))
 
 	renderSaveDirSelect()
 }
@@ -161,13 +182,14 @@ function renderSaveDirSelect() {
 	const hasSaved = options.some(item => item.cid === savedCid)
 
 	const allOptions = hasSaved ? options : [...options, { name: '', cid: savedCid }]
-	selectEl.innerHTML = allOptions
-		.map(item => {
-			const selected = item.cid === savedCid ? ' selected' : ''
-			const label = Push115PathUtils.formatPathLabel(item, getRootLabel())
-			return `<option value="${item.cid}"${selected}>${label}</option>`
-		})
-		.join('')
+	selectEl.textContent = ''
+	allOptions.forEach(item => {
+		const opt = document.createElement('option')
+		opt.value = item.cid
+		opt.textContent = Push115PathUtils.formatPathLabel(item, getRootLabel())
+		if (item.cid === savedCid) opt.selected = true
+		selectEl.appendChild(opt)
+	})
 }
 
 async function init() {
@@ -185,6 +207,7 @@ async function init() {
 	document.getElementById('push115-language-select').value = getConfig(CONFIG_KEYS.I18N_LOCALE)
 	document.getElementById('push115-theme-select').value = getConfig(CONFIG_KEYS.THEME)
 	document.getElementById('push115-save-dirs-input').value = getConfig(CONFIG_KEYS.SAVE_PATH_LIST)
+	document.getElementById('push115-auto-detect').checked = getConfig(CONFIG_KEYS.AUTO_DETECT)
 	renderSaveDirSelect()
 
 	if (getConfig(CONFIG_KEYS.AUTO_DELETE_SMALL)) {
@@ -230,6 +253,30 @@ function bindEvents() {
 		setConfig(CONFIG_KEYS.AUTO_ORGANIZE, e.target.checked)
 	})
 
+	// Auto detect toggle
+	document.getElementById('push115-auto-detect').addEventListener('change', async e => {
+		const checkbox = e.target
+		if (checkbox.checked) {
+			// Request <all_urls> permission
+			try {
+				const granted = await chrome.permissions.request({ origins: ['<all_urls>'] })
+				if (granted) {
+					setConfig(CONFIG_KEYS.AUTO_DETECT, true)
+					chrome.runtime.sendMessage({ action: 'REGISTER_CONTENT_SCRIPTS' })
+					showStatus('success', t('auto_detect_label') + ' ✓')
+				} else {
+					checkbox.checked = false
+				}
+			} catch (err) {
+				console.error('Permission request error:', err)
+				checkbox.checked = false
+			}
+		} else {
+			setConfig(CONFIG_KEYS.AUTO_DETECT, false)
+			chrome.runtime.sendMessage({ action: 'UNREGISTER_CONTENT_SCRIPTS' })
+		}
+	})
+
 	// Auto delete
 	document.getElementById('push115-auto-delete').addEventListener('change', e => {
 		setConfig(CONFIG_KEYS.AUTO_DELETE_SMALL, e.target.checked)
@@ -254,7 +301,7 @@ function bindEvents() {
 	document.getElementById('push115-check-login').addEventListener('click', async () => {
 		const btn = document.getElementById('push115-check-login')
 		btn.disabled = true
-		btn.innerHTML = '<img src="icons/check.png" width="16" height="16">' + t('processing')
+		setBtnContent('push115-check-login', 'icons/check.png', t('processing'))
 		try {
 			const response = await sendMessage('API_REQUEST', {
 				url: 'https://my.115.com/?ct=guide&ac=status',
@@ -266,7 +313,7 @@ function bindEvents() {
 			showStatus('error', t('login_fail'))
 		}
 		btn.disabled = false
-		btn.innerHTML = '<img src="icons/check.png" width="16" height="16">' + t('check_login_text')
+		setBtnContent('push115-check-login', 'icons/check.png', t('check_login_text'))
 	})
 
 	// Login Button - open modal
@@ -299,7 +346,11 @@ function showLoginModal() {
 	// Reset to select area
 	document.getElementById('push115-login-select-area').style.display = 'block'
 	document.getElementById('push115-qrcode-area').style.display = 'none'
-	document.getElementById('push115-qrcode-wrapper').innerHTML = '<span class="push115-loading"></span>'
+	const qrWrapper = document.getElementById('push115-qrcode-wrapper')
+	qrWrapper.textContent = ''
+	const spinner = document.createElement('span')
+	spinner.className = 'push115-loading'
+	qrWrapper.appendChild(spinner)
 	document.getElementById('push115-qrcode-status').textContent = '正在获取二维码...'
 	updateQRTip()
 }
@@ -361,7 +412,10 @@ async function startLoginFlow(selectedApp) {
 		// 2. Show QR Code
 		const wrapper = document.getElementById('push115-qrcode-wrapper')
 		if (wrapper) {
-			wrapper.innerHTML = `<img src="https://qrcodeapi.115.com/api/1.0/web/1.0/qrcode?uid=${uid}&_=${Date.now()}">`
+			wrapper.textContent = ''
+			const qrImg = document.createElement('img')
+			qrImg.src = `https://qrcodeapi.115.com/api/1.0/web/1.0/qrcode?uid=${encodeURIComponent(uid)}&_=${Date.now()}`
+			wrapper.appendChild(qrImg)
 		}
 
 		const statusEl = document.getElementById('push115-qrcode-status')

@@ -2,7 +2,91 @@
 
 const STORAGE_KEYS = {
   COOKIE: 'push115_cookie',
+  AUTO_DETECT: 'push115_auto_detect',
 };
+
+const CONTENT_SCRIPT_ID = 'push115-content-script';
+
+// ========== Dynamic Content Script Registration ==========
+
+async function registerContentScripts() {
+  try {
+    // Unregister first to avoid duplicates
+    await unregisterContentScripts();
+    await chrome.scripting.registerContentScripts([{
+      id: CONTENT_SCRIPT_ID,
+      matches: ['<all_urls>'],
+      js: ['path-utils.js', 'content.js'],
+      runAt: 'document_idle',
+    }]);
+    console.log('[BG] Content scripts registered');
+  } catch (e) {
+    console.error('[BG] Failed to register content scripts:', e);
+  }
+}
+
+// Inject content scripts into all existing open tabs (registerContentScripts only affects future loads)
+async function injectIntoExistingTabs() {
+  try {
+    const tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
+    for (const tab of tabs) {
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['path-utils.js', 'content.js'],
+        });
+      } catch (e) {
+        // Ignore tabs we can't inject into (e.g., chrome:// pages)
+      }
+    }
+    console.log(`[BG] Injected content scripts into ${tabs.length} existing tabs`);
+  } catch (e) {
+    console.error('[BG] Failed to inject into existing tabs:', e);
+  }
+}
+
+async function unregisterContentScripts() {
+  try {
+    await chrome.scripting.unregisterContentScripts({ ids: [CONTENT_SCRIPT_ID] });
+    console.log('[BG] Content scripts unregistered');
+  } catch (e) {
+    // Ignore error if not registered
+  }
+}
+
+async function syncContentScriptState() {
+  const data = await chrome.storage.local.get(STORAGE_KEYS.AUTO_DETECT);
+  const autoDetect = data[STORAGE_KEYS.AUTO_DETECT] === true;
+  if (autoDetect) {
+    // Verify we still have the permission
+    const hasPermission = await chrome.permissions.contains({ origins: ['<all_urls>'] });
+    if (hasPermission) {
+      await registerContentScripts();
+    } else {
+      // Permission was revoked, disable auto-detect
+      await chrome.storage.local.set({ [STORAGE_KEYS.AUTO_DETECT]: false });
+      await unregisterContentScripts();
+    }
+  } else {
+    await unregisterContentScripts();
+  }
+}
+
+// On install or startup, sync state
+chrome.runtime.onInstalled.addListener(() => {
+  syncContentScriptState();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  syncContentScriptState();
+});
+
+// Watch for auto-detect setting changes
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes[STORAGE_KEYS.AUTO_DETECT]) {
+    syncContentScriptState();
+  }
+});
 
 // Listen for messages from content script and popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -17,6 +101,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   } else if (request.action === 'NOTIFY') {
     handleNotify(request);
+  } else if (request.action === 'REGISTER_CONTENT_SCRIPTS') {
+    registerContentScripts()
+      .then(() => injectIntoExistingTabs())
+      .then(() => sendResponse({ success: true }))
+      .catch(e => sendResponse({ success: false, error: e.message }));
+    return true;
+  } else if (request.action === 'UNREGISTER_CONTENT_SCRIPTS') {
+    unregisterContentScripts().then(() => sendResponse({ success: true })).catch(e => sendResponse({ success: false, error: e.message }));
+    return true;
   }
 });
 

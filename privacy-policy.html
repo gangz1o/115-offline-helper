@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - 115 Offline Helper</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1d1d1f; background: #f5f5f7; line-height: 1.7;
+        }
+        .container { max-width: 720px; margin: 0 auto; padding: 48px 24px; }
+        h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .updated { font-size: 13px; color: #86868b; margin-bottom: 32px; }
+        h2 { font-size: 18px; font-weight: 600; margin: 28px 0 12px; color: #1d1d1f; }
+        h3 { font-size: 15px; font-weight: 600; margin: 16px 0 8px; color: #424245; }
+        p, li { font-size: 15px; color: #424245; margin-bottom: 12px; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 6px; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+        th, td { text-align: left; padding: 10px 12px; border: 1px solid #d2d2d7; font-size: 14px; }
+        th { background: #f0f0f2; font-weight: 600; }
+        code { background: #e8e8ed; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+        a { color: #007AFF; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .lang-switch { text-align: right; margin-bottom: 16px; }
+        .lang-switch a { font-size: 14px; font-weight: 500; cursor: pointer; }
+        .toc { background: #fff; border: 1px solid #d2d2d7; border-radius: 8px; padding: 16px 20px; margin: 20px 0 28px; }
+        .toc ul { list-style: none; padding-left: 0; margin: 0; }
+        .toc li { margin-bottom: 4px; }
+        .toc a { font-size: 14px; }
+        hr { border: none; border-top: 1px solid #e5e5ea; margin: 32px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="lang-switch"><a onclick="toggleLang()" id="lang-toggle">中文</a></div>
+
+    <!-- ==================== ENGLISH VERSION ==================== -->
+    <div id="en">
+        <h1>Privacy Policy</h1>
+        <p class="updated">Effective date: February 12, 2026 &nbsp;|&nbsp; Last updated: February 12, 2026</p>
+
+        <p><strong>115 Offline Helper</strong> ("the Extension", "we", "us", or "our") is a browser extension that helps users detect magnet and ed2k links and push them to 115.com for offline downloading. This privacy policy explains how the Extension handles user data. We are committed to protecting your privacy and being transparent about our data practices.</p>
+
+        <div class="toc">
+            <strong>Table of Contents</strong>
+            <ul>
+                <li><a href="#en-1">1. Information We Collect</a></li>
+                <li><a href="#en-2">2. How We Use Your Information</a></li>
+                <li><a href="#en-3">3. Data Sharing and Disclosure</a></li>
+                <li><a href="#en-4">4. Data Storage and Security</a></li>
+                <li><a href="#en-5">5. Data Retention</a></li>
+                <li><a href="#en-6">6. User Rights</a></li>
+                <li><a href="#en-7">7. Permissions Explained</a></li>
+                <li><a href="#en-8">8. Network Requests</a></li>
+                <li><a href="#en-9">9. Limited Use Disclosure</a></li>
+                <li><a href="#en-10">10. Children's Privacy</a></li>
+                <li><a href="#en-11">11. Changes to This Policy</a></li>
+                <li><a href="#en-12">12. Contact Us</a></li>
+            </ul>
+        </div>
+
+        <h2 id="en-1">1. Information We Collect</h2>
+        <p>The Extension accesses the following types of data:</p>
+        <table>
+            <tr><th>Data Type</th><th>Purpose</th><th>Stored?</th></tr>
+            <tr><td>115.com authentication cookies</td><td>Authenticate API requests to 115.com on your behalf</td><td>Locally only (<code>chrome.storage.local</code>)</td></tr>
+            <tr><td>Clipboard content</td><td>Detect magnet/ed2k links when you copy text (opt-in only, requires user to enable "Auto detect links")</td><td>Never stored; read in memory only and immediately discarded</td></tr>
+            <tr><td>User preferences</td><td>Save your settings (language, theme, save directory, auto-organize preferences)</td><td>Locally only (<code>chrome.storage.local</code>)</td></tr>
+            <tr><td>Page content (link URLs)</td><td>Scan the current page for magnet/ed2k links when auto-detect is enabled</td><td>Never stored; processed in memory only</td></tr>
+        </table>
+        <p>We do <strong>not</strong> collect personally identifiable information (PII) such as names, email addresses, phone numbers, or physical addresses.</p>
+
+        <h2 id="en-2">2. How We Use Your Information</h2>
+        <p>The data we access is used exclusively to provide the Extension's core functionality:</p>
+        <ul>
+            <li><strong>Authentication cookies</strong> — to communicate with 115.com APIs on your behalf (login status check, submit offline downloads, manage files)</li>
+            <li><strong>Clipboard content</strong> — to detect and propose downloading magnet/ed2k links that you have copied. This feature is opt-in and disabled by default.</li>
+            <li><strong>User preferences</strong> — to remember your settings between sessions</li>
+            <li><strong>Page content</strong> — to identify and highlight magnet/ed2k links for one-click downloading. This feature is opt-in and disabled by default.</li>
+        </ul>
+        <p>We do <strong>not</strong> use your data for advertising, analytics, marketing, profiling, or any purpose other than the core functionality described above.</p>
+
+        <h2 id="en-3">3. Data Sharing and Disclosure</h2>
+        <ul>
+            <li>We do <strong>not</strong> sell, trade, or rent your data to anyone.</li>
+            <li>We do <strong>not</strong> transfer data to third-party servers, advertising platforms, data brokers, or information resellers.</li>
+            <li>We do <strong>not</strong> share data with any third party for any reason.</li>
+            <li>The <strong>only</strong> external communication is between your browser and 115.com servers (*.115.com), initiated solely to fulfill your download requests and manage your 115.com account.</li>
+        </ul>
+
+        <h2 id="en-4">4. Data Storage and Security</h2>
+        <ul>
+            <li>All persistent data (settings, cached cookies) is stored <strong>locally</strong> in your browser using <code>chrome.storage.local</code>. This data never leaves your device except for API requests to 115.com.</li>
+            <li>All network communication with 115.com uses <strong>HTTPS</strong> encryption.</li>
+            <li>Authentication cookies are only used for their intended purpose (115.com API authentication) and are never exposed to other services.</li>
+            <li>The Extension does not use any remote servers, databases, or cloud storage controlled by the developer.</li>
+        </ul>
+
+        <h2 id="en-5">5. Data Retention</h2>
+        <ul>
+            <li><strong>User preferences</strong> are stored locally until you uninstall the Extension or manually clear the Extension's data.</li>
+            <li><strong>Clipboard and page content</strong> are processed in real-time memory only and are never stored persistently. They are discarded immediately after link detection.</li>
+            <li><strong>Authentication cookies</strong> are cached locally and cleared when you log out or uninstall the Extension.</li>
+        </ul>
+        <p>Uninstalling the Extension removes all locally stored data.</p>
+
+        <h2 id="en-6">6. User Rights</h2>
+        <p>You have full control over your data and the Extension's behavior:</p>
+        <ul>
+            <li><strong>Access</strong> — You can view all stored settings in the Extension's Settings tab.</li>
+            <li><strong>Modification</strong> — You can change any setting at any time through the Extension's interface.</li>
+            <li><strong>Deletion</strong> — Uninstalling the Extension removes all stored data. You can also clear Extension data via Chrome's settings (<em>chrome://extensions</em> → Extension details → "Clear data").</li>
+            <li><strong>Opt-out</strong> — The "Auto detect links" and clipboard monitoring features are disabled by default and require explicit opt-in. You can disable them at any time.</li>
+            <li><strong>Permission revocation</strong> — You can revoke the optional <code>&lt;all_urls&gt;</code> permission at any time by disabling "Auto detect links" in the Extension settings.</li>
+        </ul>
+
+        <h2 id="en-7">7. Permissions Explained</h2>
+        <table>
+            <tr><th>Permission</th><th>Why It Is Needed</th></tr>
+            <tr><td><code>storage</code></td><td>Save your settings and cached authentication data locally in the browser</td></tr>
+            <tr><td><code>cookies</code></td><td>Read 115.com login cookies to authenticate API requests on your behalf</td></tr>
+            <tr><td><code>notifications</code></td><td>Display desktop notifications about download task completion or errors</td></tr>
+            <tr><td><code>activeTab</code></td><td>Access the current tab to detect magnet/ed2k links on the page you are viewing</td></tr>
+            <tr><td><code>scripting</code></td><td>Inject the link detection content script into pages when "Auto detect links" is enabled</td></tr>
+            <tr><td><code>&lt;all_urls&gt;</code> (optional)</td><td>Only requested when you enable "Auto detect links". Allows the Extension to scan all web pages for magnet/ed2k links. You can revoke this permission at any time.</td></tr>
+        </table>
+        <p>We follow the <strong>principle of least privilege</strong>: we only request the minimum permissions necessary for the Extension to function. The broadest permission (<code>&lt;all_urls&gt;</code>) is optional and requires explicit user consent.</p>
+
+        <h2 id="en-8">8. Network Requests</h2>
+        <p>The Extension communicates <strong>only</strong> with 115.com and its subdomains (*.115.com). Specifically:</p>
+        <table>
+            <tr><th>Endpoint Domain</th><th>Purpose</th></tr>
+            <tr><td>my.115.com</td><td>Check login status</td></tr>
+            <tr><td>qrcodeapi.115.com</td><td>Generate QR codes for login authentication</td></tr>
+            <tr><td>passportapi.115.com</td><td>QR code login polling</td></tr>
+            <tr><td>webapi.115.com</td><td>Submit offline download tasks, manage files (move, rename, delete)</td></tr>
+            <tr><td>proapi.115.com</td><td>Alternative API endpoints for file operations</td></tr>
+        </table>
+        <p>No data is ever sent to any server other than those listed above. All requests use <strong>HTTPS</strong>.</p>
+
+        <h2 id="en-9">9. Limited Use Disclosure</h2>
+        <p>In compliance with the <a href="https://developer.chrome.com/docs/webstore/program-policies/limited-use/" target="_blank" rel="noopener">Chrome Web Store User Data Policy</a>:</p>
+        <ul>
+            <li>The Extension's use of information received from Chrome APIs adheres to the Chrome Web Store User Data Policy, including the Limited Use requirements.</li>
+            <li>Data obtained through the Extension is used <strong>solely</strong> to provide and improve the Extension's single purpose: detecting magnet/ed2k links and submitting them to 115.com for offline download.</li>
+            <li>We do <strong>not</strong> transfer user data to third parties except as necessary to provide the Extension's functionality (i.e., communication with 115.com).</li>
+            <li>We do <strong>not</strong> use or transfer user data for serving advertisements.</li>
+            <li>We do <strong>not</strong> use or transfer user data to determine creditworthiness or for lending purposes.</li>
+            <li>We do <strong>not</strong> sell user data.</li>
+            <li>Human access to user data does not occur.</li>
+        </ul>
+
+        <h2 id="en-10">10. Children's Privacy</h2>
+        <p>The Extension is not directed to children under the age of 13. We do not knowingly collect personal information from children. If you are a parent or guardian and believe that your child has provided personal information through the Extension, please contact us so we can take appropriate action.</p>
+
+        <h2 id="en-11">11. Changes to This Policy</h2>
+        <p>We may update this privacy policy from time to time. Any changes will be reflected on this page with an updated "Last updated" date. We encourage you to review this page periodically. Continued use of the Extension after changes constitutes acceptance of the revised policy.</p>
+
+        <h2 id="en-12">12. Contact Us</h2>
+        <p>If you have any questions, concerns, or requests regarding this privacy policy or the Extension's data practices, please contact us through one of the following channels:</p>
+        <ul>
+            <li><strong>GitHub Issues</strong>: <a href="https://github.com/gangz1o/sehuatang-to-115/issues" target="_blank" rel="noopener">github.com/gangz1o/sehuatang-to-115/issues</a></li>
+            <li><strong>Email</strong>: <a href="mailto:gangz1o@users.noreply.github.com">gangz1o@users.noreply.github.com</a></li>
+        </ul>
+    </div>
+
+    <!-- ==================== 中文版本 ==================== -->
+    <div id="zh" style="display: none;">
+        <h1>隐私政策</h1>
+        <p class="updated">生效日期：2026年2月12日 &nbsp;|&nbsp; 最后更新：2026年2月12日</p>
+
+        <p><strong>115 离线助手</strong>（"本扩展"、"我们"）是一款浏览器扩展，帮助用户检测 magnet 和 ed2k 链接并推送至 115.com 进行离线下载。本隐私政策说明了本扩展如何处理用户数据。我们致力于保护您的隐私，并对数据处理方式保持透明。</p>
+
+        <div class="toc">
+            <strong>目录</strong>
+            <ul>
+                <li><a href="#zh-1">1. 我们收集的信息</a></li>
+                <li><a href="#zh-2">2. 信息的使用方式</a></li>
+                <li><a href="#zh-3">3. 数据共享与披露</a></li>
+                <li><a href="#zh-4">4. 数据存储与安全</a></li>
+                <li><a href="#zh-5">5. 数据保留</a></li>
+                <li><a href="#zh-6">6. 用户权利</a></li>
+                <li><a href="#zh-7">7. 权限说明</a></li>
+                <li><a href="#zh-8">8. 网络请求</a></li>
+                <li><a href="#zh-9">9. 有限使用声明</a></li>
+                <li><a href="#zh-10">10. 儿童隐私</a></li>
+                <li><a href="#zh-11">11. 政策变更</a></li>
+                <li><a href="#zh-12">12. 联系我们</a></li>
+            </ul>
+        </div>
+
+        <h2 id="zh-1">1. 我们收集的信息</h2>
+        <p>本扩展访问以下类型的数据：</p>
+        <table>
+            <tr><th>数据类型</th><th>用途</th><th>是否存储</th></tr>
+            <tr><td>115.com 认证 Cookie</td><td>代表您向 115.com 发送 API 请求时进行身份验证</td><td>仅本地存储（<code>chrome.storage.local</code>）</td></tr>
+            <tr><td>剪贴板内容</td><td>检测您复制的文本中的 magnet/ed2k 链接（需用户主动开启"自动识别链接"后生效）</td><td>从不存储；仅在内存中读取并立即丢弃</td></tr>
+            <tr><td>用户偏好设置</td><td>保存语言、主题、保存目录、自动整理等设置</td><td>仅本地存储（<code>chrome.storage.local</code>）</td></tr>
+            <tr><td>页面内容（链接 URL）</td><td>在开启自动检测后扫描当前页面的 magnet/ed2k 链接</td><td>从不存储；仅在内存中处理</td></tr>
+        </table>
+        <p>我们<strong>不会</strong>收集任何个人身份信息（PII），如姓名、电子邮件、电话号码或物理地址。</p>
+
+        <h2 id="zh-2">2. 信息的使用方式</h2>
+        <p>我们访问的数据仅用于提供扩展的核心功能：</p>
+        <ul>
+            <li><strong>认证 Cookie</strong> — 代表您与 115.com API 通信（检查登录状态、提交离线下载、管理文件）</li>
+            <li><strong>剪贴板内容</strong> — 检测并提示下载您复制的 magnet/ed2k 链接。此功能默认关闭，需要用户主动开启。</li>
+            <li><strong>用户偏好设置</strong> — 在不同会话之间记住您的设置</li>
+            <li><strong>页面内容</strong> — 识别并高亮页面上的 magnet/ed2k 链接以支持一键下载。此功能默认关闭，需要用户主动开启。</li>
+        </ul>
+        <p>我们<strong>不会</strong>将您的数据用于广告、数据分析、营销、用户画像或上述核心功能以外的任何目的。</p>
+
+        <h2 id="zh-3">3. 数据共享与披露</h2>
+        <ul>
+            <li>我们<strong>不会</strong>向任何人出售、交易或出租您的数据。</li>
+            <li>我们<strong>不会</strong>将数据传输至第三方服务器、广告平台、数据代理商或信息转售商。</li>
+            <li>我们<strong>不会</strong>以任何理由与任何第三方共享数据。</li>
+            <li><strong>唯一</strong>的外部通信发生在您的浏览器和 115.com 服务器 (*.115.com) 之间，仅用于执行您的下载请求和管理您的 115.com 账户。</li>
+        </ul>
+
+        <h2 id="zh-4">4. 数据存储与安全</h2>
+        <ul>
+            <li>所有持久化数据（设置、缓存的 Cookie）均使用 <code>chrome.storage.local</code> 存储在您的浏览器<strong>本地</strong>。除了向 115.com 发送 API 请求外，数据不会离开您的设备。</li>
+            <li>与 115.com 的所有网络通信均使用 <strong>HTTPS</strong> 加密。</li>
+            <li>认证 Cookie 仅用于其预期目的（115.com API 认证），不会暴露给其他服务。</li>
+            <li>本扩展不使用任何由开发者控制的远程服务器、数据库或云存储。</li>
+        </ul>
+
+        <h2 id="zh-5">5. 数据保留</h2>
+        <ul>
+            <li><strong>用户偏好设置</strong> — 在本地存储直到您卸载扩展或手动清除扩展数据。</li>
+            <li><strong>剪贴板和页面内容</strong> — 仅在实时内存中处理，从不持久化存储。链接检测完成后立即丢弃。</li>
+            <li><strong>认证 Cookie</strong> — 在本地缓存，在您注销登录或卸载扩展时清除。</li>
+        </ul>
+        <p>卸载本扩展将删除所有本地存储的数据。</p>
+
+        <h2 id="zh-6">6. 用户权利</h2>
+        <p>您可以完全控制您的数据和扩展的行为：</p>
+        <ul>
+            <li><strong>查看</strong> — 您可以在扩展的"设置"选项卡中查看所有存储的设置。</li>
+            <li><strong>修改</strong> — 您可以随时通过扩展界面更改任何设置。</li>
+            <li><strong>删除</strong> — 卸载扩展将删除所有存储的数据。您也可以通过 Chrome 设置清除扩展数据（<em>chrome://extensions</em> → 扩展详情 → "清除数据"）。</li>
+            <li><strong>退出</strong> — "自动识别链接"和剪贴板监控功能默认关闭，需要用户明确开启。您可以随时关闭它们。</li>
+            <li><strong>权限撤销</strong> — 您可以随时在扩展设置中关闭"自动识别链接"来撤销可选的 <code>&lt;all_urls&gt;</code> 权限。</li>
+        </ul>
+
+        <h2 id="zh-7">7. 权限说明</h2>
+        <table>
+            <tr><th>权限</th><th>用途</th></tr>
+            <tr><td><code>storage</code></td><td>在浏览器本地保存设置和缓存的认证数据</td></tr>
+            <tr><td><code>cookies</code></td><td>读取 115.com 的登录 Cookie 以代表您进行 API 认证</td></tr>
+            <tr><td><code>notifications</code></td><td>显示下载任务完成或错误的桌面通知</td></tr>
+            <tr><td><code>activeTab</code></td><td>访问当前标签页以检测页面上的 magnet/ed2k 链接</td></tr>
+            <tr><td><code>scripting</code></td><td>在开启"自动识别链接"后向页面注入链接检测脚本</td></tr>
+            <tr><td><code>&lt;all_urls&gt;</code>（可选）</td><td>仅在您开启"自动识别链接"后请求。允许扩展在所有网页上扫描 magnet/ed2k 链接。您可以随时撤销此权限。</td></tr>
+        </table>
+        <p>我们遵循<strong>最小权限原则</strong>：仅请求扩展功能所需的最低权限。最广泛的权限（<code>&lt;all_urls&gt;</code>）为可选权限，需要用户明确同意。</p>
+
+        <h2 id="zh-8">8. 网络请求</h2>
+        <p>本扩展<strong>仅</strong>与 115.com 及其子域名 (*.115.com) 通信。具体如下：</p>
+        <table>
+            <tr><th>端点域名</th><th>用途</th></tr>
+            <tr><td>my.115.com</td><td>检查登录状态</td></tr>
+            <tr><td>qrcodeapi.115.com</td><td>生成登录二维码</td></tr>
+            <tr><td>passportapi.115.com</td><td>二维码登录轮询</td></tr>
+            <tr><td>webapi.115.com</td><td>提交离线下载任务、管理文件（移动、重命名、删除）</td></tr>
+            <tr><td>proapi.115.com</td><td>备用 API 端点，用于文件操作</td></tr>
+        </table>
+        <p>不会向上述以外的任何服务器发送数据。所有请求均使用 <strong>HTTPS</strong>。</p>
+
+        <h2 id="zh-9">9. 有限使用声明</h2>
+        <p>根据 <a href="https://developer.chrome.com/docs/webstore/program-policies/limited-use/" target="_blank" rel="noopener">Chrome 网上应用店用户数据政策</a>：</p>
+        <ul>
+            <li>本扩展对通过 Chrome API 获得的信息的使用遵守 Chrome 网上应用店用户数据政策，包括有限使用要求。</li>
+            <li>通过本扩展获得的数据<strong>仅</strong>用于提供和改进扩展的单一用途：检测 magnet/ed2k 链接并将其提交到 115.com 进行离线下载。</li>
+            <li>我们<strong>不会</strong>将用户数据传输给第三方，除非为提供扩展功能所必需（即与 115.com 通信）。</li>
+            <li>我们<strong>不会</strong>将用户数据用于投放广告。</li>
+            <li>我们<strong>不会</strong>将用户数据用于确定信用额度或贷款用途。</li>
+            <li>我们<strong>不会</strong>出售用户数据。</li>
+            <li>不存在人工访问用户数据的情况。</li>
+        </ul>
+
+        <h2 id="zh-10">10. 儿童隐私</h2>
+        <p>本扩展不面向 13 岁以下的儿童。我们不会有意收集儿童的个人信息。如果您是家长或监护人，并认为您的孩子通过本扩展提供了个人信息，请联系我们以便我们采取适当措施。</p>
+
+        <h2 id="zh-11">11. 政策变更</h2>
+        <p>我们可能会不时更新本隐私政策。任何更改将在本页面上体现，并更新"最后更新"日期。我们建议您定期查看此页面。在更改后继续使用本扩展即表示您接受修订后的政策。</p>
+
+        <h2 id="zh-12">12. 联系我们</h2>
+        <p>如果您对本隐私政策或本扩展的数据处理有任何疑问、顾虑或请求，请通过以下渠道联系我们：</p>
+        <ul>
+            <li><strong>GitHub Issues</strong>：<a href="https://github.com/gangz1o/sehuatang-to-115/issues" target="_blank" rel="noopener">github.com/gangz1o/sehuatang-to-115/issues</a></li>
+            <li><strong>电子邮件</strong>：<a href="mailto:gangz1o@users.noreply.github.com">gangz1o@users.noreply.github.com</a></li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function toggleLang() {
+        const en = document.getElementById('en');
+        const zh = document.getElementById('zh');
+        const btn = document.getElementById('lang-toggle');
+        if (en.style.display === 'none') {
+            en.style.display = 'block';
+            zh.style.display = 'none';
+            btn.textContent = '中文';
+        } else {
+            en.style.display = 'none';
+            zh.style.display = 'block';
+            btn.textContent = 'English';
+        }
+    }
+</script>
+</body>
+</html>

@@ -8,6 +8,7 @@ const CONFIG_KEYS = {
 	AUTO_DELETE_SMALL: 'push115_auto_delete_small',
 	DELETE_SIZE_THRESHOLD: 'push115_delete_size_threshold',
 	AUTO_ORGANIZE: 'push115_auto_organize',
+	AUTO_DETECT: 'push115_auto_detect',
 	I18N_LOCALE: 'push115_i18n_locale',
 	THEME: 'push115_theme',
 }
@@ -19,6 +20,7 @@ const DEFAULT_CONFIG = {
 	[CONFIG_KEYS.AUTO_DELETE_SMALL]: false,
 	[CONFIG_KEYS.DELETE_SIZE_THRESHOLD]: 100,
 	[CONFIG_KEYS.AUTO_ORGANIZE]: false,
+	[CONFIG_KEYS.AUTO_DETECT]: false,
 	[CONFIG_KEYS.I18N_LOCALE]: 'zh-CN',
 	[CONFIG_KEYS.THEME]: 'auto',
 }
@@ -689,7 +691,14 @@ function showStickyToast(type, msg, withSpinner = true) {
 	if (stickyToastEl) stickyToastEl.remove()
 	stickyToastEl = document.createElement('div')
 	stickyToastEl.className = `push115-toast push115-sticky ${type}`
-	stickyToastEl.innerHTML = `${withSpinner ? '<span class="push115-toast-spinner"></span>' : ''}<span>${msg}</span>`
+	if (withSpinner) {
+		const spinnerEl = document.createElement('span')
+		spinnerEl.className = 'push115-toast-spinner'
+		stickyToastEl.appendChild(spinnerEl)
+	}
+	const msgSpan = document.createElement('span')
+	msgSpan.textContent = msg
+	stickyToastEl.appendChild(msgSpan)
 	document.body.appendChild(stickyToastEl)
 }
 
@@ -708,36 +717,81 @@ function createConfirmModal(url, type) {
 	const options = getSavePathOptions()
 	const hasCurrent = options.some(item => item.cid === currentCid)
 	const allOptions = hasCurrent ? options : [...options, { name: '', cid: currentCid }]
-	const optionsHtml = allOptions
-		.map(item => {
-			const selected = item.cid === currentCid ? ' selected' : ''
-			const label = Push115PathUtils.formatPathLabel(item, getRootLabel())
-			return `<option value="${item.cid}"${selected}>${label}</option>`
-		})
-		.join('')
 	const overlay = document.createElement('div')
 	overlay.className = 'push115-modal-overlay'
 	overlay.id = 'push115-modal-overlay'
-	overlay.innerHTML = `
-    <div class="push115-modal">
-      <div class="push115-modal-header">
-        <h3 class="push115-modal-title">${t('modal_title')}</h3>
-      </div>
-      <div class="push115-modal-body">
-        <div class="push115-modal-info">${t('modal_detect')} <strong>${type}</strong> ${t('modal_link_type')}</div>
-        <div class="push115-modal-link">${url}</div>
-        <div class="push115-modal-path-row">
-          <div class="push115-modal-info">${t('modal_path')}</div>
-          <select class="push115-modal-select" id="push115-modal-save-dir">${optionsHtml}</select>
-        </div>
-        <div class="push115-modal-info">${t('modal_path_hint')}</div>
-      </div>
-      <div class="push115-modal-footer">
-        <button class="push115-modal-btn push115-modal-btn-cancel" id="push115-modal-cancel">${t('modal_cancel')}</button>
-        <button class="push115-modal-btn push115-modal-btn-confirm" id="push115-modal-confirm">${t('modal_confirm')}</button>
-      </div>
-    </div>
-  `
+
+	const modal = document.createElement('div')
+	modal.className = 'push115-modal'
+
+	// Header
+	const header = document.createElement('div')
+	header.className = 'push115-modal-header'
+	const title = document.createElement('h3')
+	title.className = 'push115-modal-title'
+	title.textContent = t('modal_title')
+	header.appendChild(title)
+	modal.appendChild(header)
+
+	// Body
+	const body = document.createElement('div')
+	body.className = 'push115-modal-body'
+
+	const info1 = document.createElement('div')
+	info1.className = 'push115-modal-info'
+	info1.textContent = `${t('modal_detect')} `
+	const strong = document.createElement('strong')
+	strong.textContent = type
+	info1.appendChild(strong)
+	info1.appendChild(document.createTextNode(` ${t('modal_link_type')}`))
+	body.appendChild(info1)
+
+	const linkDiv = document.createElement('div')
+	linkDiv.className = 'push115-modal-link'
+	linkDiv.textContent = url
+	body.appendChild(linkDiv)
+
+	const pathRow = document.createElement('div')
+	pathRow.className = 'push115-modal-path-row'
+	const pathLabel = document.createElement('div')
+	pathLabel.className = 'push115-modal-info'
+	pathLabel.textContent = t('modal_path')
+	pathRow.appendChild(pathLabel)
+	const select = document.createElement('select')
+	select.className = 'push115-modal-select'
+	select.id = 'push115-modal-save-dir'
+	allOptions.forEach(item => {
+		const opt = document.createElement('option')
+		opt.value = item.cid
+		opt.textContent = Push115PathUtils.formatPathLabel(item, getRootLabel())
+		if (item.cid === currentCid) opt.selected = true
+		select.appendChild(opt)
+	})
+	pathRow.appendChild(select)
+	body.appendChild(pathRow)
+
+	const hintDiv = document.createElement('div')
+	hintDiv.className = 'push115-modal-info'
+	hintDiv.textContent = t('modal_path_hint')
+	body.appendChild(hintDiv)
+	modal.appendChild(body)
+
+	// Footer
+	const footer = document.createElement('div')
+	footer.className = 'push115-modal-footer'
+	const cancelBtn = document.createElement('button')
+	cancelBtn.className = 'push115-modal-btn push115-modal-btn-cancel'
+	cancelBtn.id = 'push115-modal-cancel'
+	cancelBtn.textContent = t('modal_cancel')
+	footer.appendChild(cancelBtn)
+	const confirmBtn = document.createElement('button')
+	confirmBtn.className = 'push115-modal-btn push115-modal-btn-confirm'
+	confirmBtn.id = 'push115-modal-confirm'
+	confirmBtn.textContent = t('modal_confirm')
+	footer.appendChild(confirmBtn)
+	modal.appendChild(footer)
+
+	overlay.appendChild(modal)
 
 	document.body.appendChild(overlay)
 
@@ -866,4 +920,8 @@ async function init() {
 	})
 }
 
-init()
+// Guard against duplicate injection (registerContentScripts + executeScript)
+if (!window.__push115_initialized) {
+	window.__push115_initialized = true
+	init()
+}

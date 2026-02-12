@@ -7,15 +7,13 @@
     "storage",
     "cookies",
     "notifications",
-    "activeTab"
+    "activeTab",
+    "scripting"
   ],
   "host_permissions": [
-    "*://*.115.com/*",
-    "*://my.115.com/*",
-    "*://webapi.115.com/*",
-    "*://captchaapi.115.com/*",
-    "*://qrcodeapi.115.com/*",
-    "*://passportapi.115.com/*",
+    "*://*.115.com/*"
+  ],
+  "optional_host_permissions": [
     "<all_urls>"
   ],
   "action": {
@@ -25,13 +23,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["path-utils.js", "content.js"],
-      "run_at": "document_idle"
-    }
-  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

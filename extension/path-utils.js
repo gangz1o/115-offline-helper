@@ -47,8 +47,8 @@
   }
 
   function formatPathLabel(item, rootLabel = '根目录') {
-    if (!item || item.cid === '0') return `${rootLabel}:0`;
-    if (item.name) return `${item.name}:${item.cid}`;
+    if (!item || item.cid === '0') return rootLabel;
+    if (item.name) return item.name;
     return `CID:${item.cid}`;
   }
 
