@@ -32,7 +32,11 @@
 
 ## 📦 Installation
 
-<!-- ### Chrome Web Store (coming soon) -->
+### Chrome Web Store (Recommended)
+
+Install directly from the Chrome Web Store:
+
+[<img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/iNEddTyWiMfLSwFD6qGq.png" height="58" alt="Available in the Chrome Web Store">](https://chromewebstore.google.com/detail/115-offline-helper/blgnjjjbmjgilkiimglodjdebcdaidgl?hl=zh-CN&authuser=0)
 
 ### Manual Install
 
